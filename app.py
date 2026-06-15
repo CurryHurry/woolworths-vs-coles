@@ -27,13 +27,38 @@ st.set_page_config(
 # ---------------------------------------------------------------------------
 st.markdown("""
 <style>
-/* ---- Page background ---- */
-.stApp { background-color: #f9fafb; }
+/* ---- Page background: soft, blurred mesh backdrop ---- */
+.stApp { background: #eef2f7; }
+/* Blurred atmospheric layer (reads like an out-of-focus photo). Self-contained
+   mesh of soft colour blobs — swap the radial-gradients for url('...') to use a
+   real photo. */
+.stApp::before {
+    content: "";
+    position: fixed; inset: -60px; z-index: -2;
+    background:
+        radial-gradient(42% 46% at 12% 16%, rgba(134, 239, 172, 0.55) 0%, rgba(134,239,172,0) 60%),
+        radial-gradient(38% 42% at 86% 12%, rgba(253, 186, 186, 0.50) 0%, rgba(253,186,186,0) 62%),
+        radial-gradient(46% 52% at 80% 84%, rgba(165, 213, 255, 0.45) 0%, rgba(165,213,255,0) 60%),
+        radial-gradient(42% 46% at 16% 90%, rgba(253, 230, 138, 0.42) 0%, rgba(253,230,138,0) 62%),
+        linear-gradient(135deg, #f7fafc 0%, #eef3f8 100%);
+    filter: blur(64px) saturate(1.15);
+    transform: scale(1.06);
+}
+/* Light frosted veil so glass surfaces and text stay crisp */
+.stApp::after {
+    content: "";
+    position: fixed; inset: 0; z-index: -1;
+    background: rgba(248, 250, 252, 0.28);
+}
+/* Let content sit over the backdrop */
+[data-testid="stAppViewContainer"],
+.main .block-container { background: transparent !important; }
 
 /* ---- Top toolbar (the "Deploy" bar) ---- */
 [data-testid="stHeader"] {
     background-color: #0f172a !important;
     border-bottom: none !important;
+    box-shadow: 0 4px 18px rgba(15,23,42,0.18);
 }
 [data-testid="stDecoration"] { display: none !important; }
 [data-testid="stHeader"]::before {
@@ -67,12 +92,39 @@ st.markdown("""
 [data-testid="stSidebarCollapsedControl"] button svg { fill: #ffffff !important; stroke: #ffffff !important; }
 [data-testid="collapsedControl"] svg { fill: #ffffff !important; }
 
-/* ---- Sidebar ---- */
+/* ---- Sidebar (frosted glass) ---- */
 [data-testid="stSidebar"] {
-    background-color: #ffffff;
-    border-right: 1px solid #e2e8f0;
+    background-color: rgba(255, 255, 255, 0.70) !important;
+    backdrop-filter: blur(18px) saturate(1.4);
+    -webkit-backdrop-filter: blur(18px) saturate(1.4);
+    border-right: 1px solid rgba(255, 255, 255, 0.55);
+    box-shadow: 1px 0 0 rgba(255,255,255,0.4), 6px 0 24px rgba(15,23,42,0.06);
 }
 [data-testid="stSidebar"] > div:first-child { padding-top: 1.2rem; }
+
+/* Sidebar header — fills the top-left space and labels the panel's purpose */
+.sb-head {
+    display: flex; align-items: center; gap: 11px;
+    padding: 0 2px 14px; margin-bottom: 6px;
+    border-bottom: 1px solid rgba(255,255,255,0.10);
+}
+.sb-head-icon {
+    width: 38px; height: 38px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(155deg, #1c8043 0%, #166534 100%);
+    box-shadow: 0 4px 12px rgba(22,101,52,0.40), inset 0 1px 0 rgba(255,255,255,0.30);
+}
+.sb-head-icon svg { width: 20px; height: 20px; }
+.sb-head-title { font-size: 0.98rem; font-weight: 800; color: #f1f5f9; line-height: 1.15; }
+.sb-head-sub   { font-size: 0.76rem; color: #94a3b8; margin-top: 1px; }
+
+/* Flat category group label (replaces cluttered expanders) */
+.sb-cat {
+    font-size: 0.70rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.7px; color: #94a3b8;
+    margin: 15px 0 5px; padding-bottom: 5px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
 
 /* ---- Expanders: main content (category sections) ---- */
 [data-testid="stExpander"] {
@@ -125,11 +177,21 @@ st.markdown("""
 }
 .freshness .dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; display: inline-block; }
 .metric-card {
-    background: #ffffff; border: 1px solid #e2e8f0;
-    border-radius: 10px; padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.62);
+    backdrop-filter: blur(14px) saturate(1.4);
+    -webkit-backdrop-filter: blur(14px) saturate(1.4);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 12px; padding: 14px 16px;
+    box-shadow: 0 8px 22px rgba(15,23,42,0.08), inset 0 1px 0 rgba(255,255,255,0.85);
 }
-.metric-card.metric-ww  { background: #f0fdf4; border-color: #bbf7d0; }
-.metric-card.metric-col { background: #fff1f2; border-color: #fecdd3; }
+.metric-card.metric-ww  {
+    background: linear-gradient(155deg, rgba(220,252,231,0.88) 0%, rgba(240,253,244,0.55) 100%);
+    border-color: rgba(187,247,208,0.85);
+}
+.metric-card.metric-col {
+    background: linear-gradient(155deg, rgba(254,226,226,0.88) 0%, rgba(255,241,242,0.55) 100%);
+    border-color: rgba(254,205,211,0.85);
+}
 .metric-label {
     font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.5px;
     color: #64748b; margin-bottom: 6px; font-weight: 600;
@@ -140,42 +202,68 @@ st.markdown("""
 
 /* ---- Buttons ---- */
 .stButton > button[kind="primary"] {
-    background-color: #166534; border: none; font-weight: 700;
-    font-size: 0.9rem; border-radius: 9px; padding: 10px 0; color: #fff;
+    background: linear-gradient(180deg, #1c8043 0%, #166534 100%);
+    border: none; font-weight: 700;
+    font-size: 0.9rem; border-radius: 10px; padding: 10px 0; color: #fff;
+    box-shadow: 0 4px 14px rgba(22,101,52,0.30), inset 0 1px 0 rgba(255,255,255,0.28);
 }
-.stButton > button[kind="primary"]:hover { background-color: #14532d; }
+.stButton > button[kind="primary"]:hover {
+    background: linear-gradient(180deg, #22994f 0%, #15803d 100%);
+    box-shadow: 0 6px 18px rgba(22,101,52,0.38), inset 0 1px 0 rgba(255,255,255,0.30);
+}
 /* Scope to main content + sidebar only — prevents styling header toolbar buttons */
 .main .stButton > button:not([kind="primary"]),
 [data-testid="stSidebar"] .stButton > button:not([kind="primary"]) {
-    border: 1.5px solid #166534 !important; color: #166534 !important; font-size: 0.82rem;
-    border-radius: 7px; background: #ffffff !important; font-weight: 600;
+    border: 1.5px solid rgba(22,101,52,0.55) !important; color: #166534 !important; font-size: 0.82rem;
+    border-radius: 9px;
+    background: rgba(255,255,255,0.55) !important;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    font-weight: 600;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
 }
 .main .stButton > button:not([kind="primary"]):hover,
 [data-testid="stSidebar"] .stButton > button:not([kind="primary"]):hover {
-    background: #f0fdf4 !important; border-color: #14532d !important;
+    background: rgba(240,253,244,0.85) !important; border-color: #166534 !important;
 }
 
 /* ---- Pills ---- */
 .pill-ww    { display:inline-block; background:#dcfce7; color:#166534; border-radius:20px; padding:3px 12px; font-size:0.80rem; font-weight:700; }
 .pill-coles { display:inline-block; background:#fee2e2; color:#991b1b; border-radius:20px; padding:3px 12px; font-size:0.80rem; font-weight:700; }
 
-/* ---- Winner banner ---- */
-.winner-banner { border-radius: 12px; padding: 20px 24px; margin-bottom: 4px; }
-.winner-banner.ww  { background: #166534; }
-.winner-banner.col { background: #991b1b; }
-.winner-banner.tie { background: #374151; }
-.wbanner-title  { font-size: 1.05rem; font-weight: 700; color: #ffffff; margin-bottom: 4px; }
-.wbanner-saving { font-size: 2.0rem; font-weight: 800; color: #ffffff; line-height: 1.1; margin-bottom: 6px; }
-.wbanner-detail { font-size: 0.82rem; color: rgba(255,255,255,0.80); }
+/* ---- Winner banner (glossy) ---- */
+.winner-banner {
+    border-radius: 14px; padding: 22px 26px; margin-bottom: 8px;
+    border: 1px solid rgba(255,255,255,0.18);
+    box-shadow: 0 12px 30px rgba(15,23,42,0.22), inset 0 1px 0 rgba(255,255,255,0.28);
+}
+.winner-banner.ww  {
+    background:
+        linear-gradient(160deg, rgba(255,255,255,0.24) 0%, rgba(255,255,255,0.05) 34%, rgba(255,255,255,0) 60%),
+        linear-gradient(135deg, #18a249 0%, #166534 55%, #14532d 100%);
+}
+.winner-banner.col {
+    background:
+        linear-gradient(160deg, rgba(255,255,255,0.24) 0%, rgba(255,255,255,0.05) 34%, rgba(255,255,255,0) 60%),
+        linear-gradient(135deg, #d62828 0%, #991b1b 55%, #7f1d1d 100%);
+}
+.winner-banner.tie {
+    background:
+        linear-gradient(160deg, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0.04) 34%, rgba(255,255,255,0) 60%),
+        linear-gradient(135deg, #4b5563 0%, #374151 55%, #1f2937 100%);
+}
+.wbanner-title  { font-size: 1.05rem; font-weight: 700; color: #ffffff; margin-bottom: 4px; text-shadow: 0 1px 2px rgba(0,0,0,0.18); }
+.wbanner-detail { font-size: 0.82rem; color: rgba(255,255,255,0.85); }
 
 /* ---- Item cards ---- */
 .item-card {
-    background: #ffffff; border: 1px solid #e2e8f0;
-    border-radius: 8px; margin-bottom: 6px; overflow: hidden;
+    background: rgba(255, 255, 255, 0.78); border: 1px solid rgba(226,232,240,0.9);
+    border-radius: 10px; margin-bottom: 7px; overflow: hidden;
+    box-shadow: 0 2px 8px rgba(15,23,42,0.05), inset 0 1px 0 rgba(255,255,255,0.9);
 }
 .card-header {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 9px 14px; border-bottom: 1px solid #e2e8f0; background: #f1f5f9;
+    padding: 9px 14px; border-bottom: 1px solid rgba(226,232,240,0.8);
+    background: linear-gradient(180deg, rgba(248,250,252,0.95) 0%, rgba(241,245,249,0.85) 100%);
 }
 .card-title {
     font-size: 0.88rem; font-weight: 600; color: #374151;
@@ -200,10 +288,10 @@ st.markdown("""
 .stores-row { display: flex; }
 .store-panel { flex: 1; padding: 14px 16px; border-right: 2px solid #e2e8f0; }
 .store-panel:last-child { border-right: none; }
-.store-panel.win-ww    { background: #f0fdf4; border-top: 3px solid #166534; }
-.store-panel.win-col   { background: #fff1f2; border-top: 3px solid #991b1b; }
-.store-panel.lose      { background: #ffffff; border-top: 3px solid transparent; }
-.store-panel.no-price  { background: #ffffff; border-top: 3px solid transparent; opacity: 0.5; }
+.store-panel.win-ww    { background: linear-gradient(160deg, rgba(220,252,231,0.75), rgba(240,253,244,0.35)); border-top: 3px solid #166534; }
+.store-panel.win-col   { background: linear-gradient(160deg, rgba(254,226,226,0.75), rgba(255,241,242,0.35)); border-top: 3px solid #991b1b; }
+.store-panel.lose      { background: transparent; border-top: 3px solid transparent; }
+.store-panel.no-price  { background: transparent; border-top: 3px solid transparent; opacity: 0.5; }
 
 /* ---- Store label ---- */
 .store-label {
@@ -259,25 +347,28 @@ st.markdown("""
 .header-vs  { color: #6b7280; }
 .header-sep { color: #cbd5e1; margin: 0 2px; }
 
-/* ---- Category sections (details/summary collapsible) ---- */
+/* ---- Category sections (details/summary collapsible, frosted glass) ---- */
 details.cat-section {
-    border: 1px solid #e2e8f0; border-radius: 10px;
-    background: #ffffff; margin-bottom: 10px; overflow: hidden;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    border: 1px solid rgba(255,255,255,0.6); border-radius: 14px;
+    background: rgba(255, 255, 255, 0.58);
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    margin-bottom: 12px; overflow: hidden;
+    box-shadow: 0 8px 24px rgba(15,23,42,0.09), inset 0 1px 0 rgba(255,255,255,0.85);
 }
 details.cat-section > summary {
     display: flex; align-items: center; gap: 10px;
-    padding: 14px 18px; background: #ffffff;
+    padding: 14px 18px; background: rgba(255,255,255,0.28);
     cursor: pointer; list-style: none;
     font-size: 1.05rem; font-weight: 800; color: #0f172a;
     user-select: none; letter-spacing: -0.2px;
 }
 details.cat-section > summary::-webkit-details-marker { display: none; }
 details.cat-section > summary::marker { display: none; }
-details.cat-section > summary:hover { background: #f8fafc; }
+details.cat-section > summary:hover { background: rgba(255,255,255,0.5); }
 .cat-chevron { margin-left: auto; color: #94a3b8; font-size: 0.80rem; display: inline-block; transition: transform 0.2s; }
 details.cat-section[open] .cat-chevron { transform: rotate(180deg); }
-.cat-body { padding: 10px 0 6px; }
+.cat-body { padding: 10px 14px 8px; }
 
 /* ---- Category winner pills (in section header) ---- */
 .cat-winner-ww  { background:#dcfce7; color:#166534; border-radius:20px; padding:2px 10px; font-size:0.76rem; font-weight:700; white-space:nowrap; }
@@ -287,12 +378,80 @@ details.cat-section[open] .cat-chevron { transform: rotate(180deg); }
 .cat-item-count { font-size:0.78rem; font-weight:400; color:#64748b; }
 .row-error { font-size:0.76rem; color:#b45309; margin:0 0 8px 4px; }
 
-/* ---- Hero (empty state) ---- */
-.hero { text-align: center; padding: 64px 24px; }
+/* ---- Hero (empty state, frosted glass) ---- */
+.hero {
+    text-align: center; padding: 56px 24px; margin-top: 8px;
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    border: 1px solid rgba(255,255,255,0.6); border-radius: 18px;
+    box-shadow: 0 12px 36px rgba(15,23,42,0.10), inset 0 1px 0 rgba(255,255,255,0.85);
+}
 .hero-emoji { font-size: 2.8rem; margin-bottom: 14px; }
 .hero h3 { font-size: 1.25rem; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
 .hero p  { font-size: 0.9rem; color: #374151; max-width: 380px; margin: 0 auto 6px; }
 .hero-hint { font-size: 0.80rem; color: #6b7280; margin-top: 12px; }
+
+/* ======================================================================
+   Dark sidebar (left panel) — clean menu, high contrast vs light content
+   ====================================================================== */
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
+    backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+    border-right: 1px solid rgba(255,255,255,0.08) !important;
+    box-shadow: 6px 0 24px rgba(15,23,42,0.18) !important;
+}
+/* Checkbox item rows */
+[data-testid="stSidebar"] [data-testid="stCheckbox"] label p,
+[data-testid="stSidebar"] [data-testid="stCheckbox"] label span,
+[data-testid="stSidebar"] [data-testid="stCheckbox"] label { color: #e2e8f0 !important; font-size: 0.86rem; }
+/* Selected-count + helper text */
+[data-testid="stSidebar"] .stMarkdown p { color: #cbd5e1; }
+[data-testid="stSidebar"] .sb-head-title { color: #f1f5f9; }
+/* Search field */
+[data-testid="stSidebar"] .stTextInput input {
+    background: rgba(255,255,255,0.07) !important; color: #f1f5f9 !important;
+    border: 1px solid rgba(255,255,255,0.15) !important;
+}
+[data-testid="stSidebar"] .stTextInput input::placeholder { color: #94a3b8 !important; }
+/* Ghost secondary buttons (Select all / Clear all / Clear cache) */
+[data-testid="stSidebar"] .stButton > button:not([kind="primary"]) {
+    background: rgba(255,255,255,0.06) !important;
+    border: 1px solid rgba(255,255,255,0.18) !important;
+    color: #e2e8f0 !important;
+    backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+}
+[data-testid="stSidebar"] .stButton > button:not([kind="primary"]):hover {
+    background: rgba(255,255,255,0.12) !important; border-color: rgba(255,255,255,0.30) !important;
+}
+/* Dividers */
+[data-testid="stSidebar"] hr { border-color: rgba(255,255,255,0.10) !important; }
+/* Force-refresh checkbox label */
+[data-testid="stSidebar"] [data-testid="stCheckbox"] { color: #cbd5e1; }
+
+/* ---- Winner banner: emphasised dollar amount ---- */
+.wbanner-amt {
+    font-size: 2.9rem; font-weight: 800; color: #ffffff; line-height: 1.0;
+    letter-spacing: -1.2px; margin: 2px 0 2px;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.28);
+}
+.wbanner-sub { font-size: 0.86rem; font-weight: 600; color: rgba(255,255,255,0.88); margin-bottom: 8px; }
+
+/* ======================================================================
+   Uniform SHARP corners across the whole app
+   ====================================================================== */
+[data-testid="stHeader"],
+.stButton > button, .stTextInput input, .stTextInput > div,
+[data-testid="stExpander"], [data-testid="stExpander"] summary,
+.metric-card, .item-card, .card-header,
+details.cat-section, details.cat-section > summary,
+.store-panel, .winner-banner, .hero, .sb-head-icon,
+.save-badge, .per-kg-chip, .sale-pill,
+.cat-winner-ww, .cat-winner-col, .cat-winner-tie, .cat-winner-na,
+.pill-ww, .pill-coles, .freshness .dot {
+    border-radius: 0 !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -302,6 +461,21 @@ details.cat-section[open] .cat-chevron { transform: rotate(180deg); }
 all_item_names = [item["name"] for items in ITEMS.values() for item in items]
 
 with st.sidebar:
+    st.markdown(
+        '<div class="sb-head">'
+        '<div class="sb-head-icon">'
+        '<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" '
+        'stroke-linecap="round" stroke-linejoin="round">'
+        '<circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle>'
+        '<path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>'
+        '</svg>'
+        '</div>'
+        '<div><div class="sb-head-title">Your shopping list</div>'
+        '<div class="sb-head-sub">Tick items, then compare</div></div>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+
     # Authoritative selection store. Survives search-filtering, which would
     # otherwise drop widget state for any checkbox not rendered this run.
     if "selected" not in st.session_state:
@@ -336,12 +510,12 @@ with st.sidebar:
                 continue
             any_match = True
             icon = CATEGORY_ICONS.get(category, "")
-            with st.expander(f"{icon}  {category}", expanded=bool(query)):
-                for item in matching:
-                    name = item["name"]
-                    # Seed widget from the authoritative store BEFORE instantiating
-                    st.session_state[f"item_{name}"] = name in st.session_state.selected
-                    st.checkbox(name, key=f"item_{name}", on_change=_sync_item, args=(name,))
+            st.markdown(f'<div class="sb-cat">{icon} {category}</div>', unsafe_allow_html=True)
+            for item in matching:
+                name = item["name"]
+                # Seed widget from the authoritative store BEFORE instantiating
+                st.session_state[f"item_{name}"] = name in st.session_state.selected
+                st.checkbox(name, key=f"item_{name}", on_change=_sync_item, args=(name,))
         if not any_match:
             st.caption("No items match your search.")
 
@@ -527,7 +701,8 @@ else:
             banner_html = (
                 f'<div class="winner-banner ww">'
                 f'<div class="wbanner-title">🏆 Woolworths cheaper this week</div>'
-                f'<div class="wbanner-saving">${diff:.2f} saved vs Coles basket</div>'
+                f'<div class="wbanner-amt">${diff:.2f}</div>'
+                f'<div class="wbanner-sub">saved on your basket vs Coles</div>'
                 f'<div class="wbanner-detail">Cheaper on {wins_ww} of {compared} items · {wins_col} at Coles{tied_str}</div>'
                 f'</div>'
             )
@@ -535,7 +710,8 @@ else:
             banner_html = (
                 f'<div class="winner-banner col">'
                 f'<div class="wbanner-title">🏆 Coles cheaper this week</div>'
-                f'<div class="wbanner-saving">${diff:.2f} saved vs Woolworths basket</div>'
+                f'<div class="wbanner-amt">${diff:.2f}</div>'
+                f'<div class="wbanner-sub">saved on your basket vs Woolworths</div>'
                 f'<div class="wbanner-detail">Cheaper on {wins_col} of {compared} items · {wins_ww} at Woolworths{tied_str}</div>'
                 f'</div>'
             )
@@ -543,8 +719,8 @@ else:
             banner_html = (
                 f'<div class="winner-banner tie">'
                 f'<div class="wbanner-title">🤝 It\'s a tie this week</div>'
-                f'<div class="wbanner-saving">$0.00 difference</div>'
-                f'<div class="wbanner-detail">Both supermarkets equal across {compared} items</div>'
+                f'<div class="wbanner-amt">$0.00</div>'
+                f'<div class="wbanner-sub">no difference across {compared} items</div>'
                 f'</div>'
             )
         st.markdown(banner_html, unsafe_allow_html=True)
